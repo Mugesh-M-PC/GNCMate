@@ -3,17 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { radius } from '../theme';
-import {
-    HomeIcon,
-    BookOpenIcon,
-    ClockIcon,
-    FileTextIcon,
-    CalendarIcon,
-    CreditCardIcon,
-    BellIcon,
-    LogOutIcon,
-} from '../components/Icons';
 import { useThemeStore } from '../store/ThemeStore';
+import { CalendarRange, CreditCard, Home, LogOut, Table2 } from 'lucide-react-native';
 
 const DrawerContent = ({ navigation, state }) => {
     const { colors } = useThemeStore();
@@ -72,24 +63,21 @@ const DrawerContent = ({ navigation, state }) => {
 
             <ScrollView style={styles.nav} showsVerticalScrollIndicator={false}>
                 <Text style={[styles.sectionLabel, { color: colors.text3 }]}>Main</Text>
-                {/* Navigating to nested tab screens: */}
-                <DrawerItem icon={HomeIcon} label="Dashboard" route="MainTabs" active={activeRoute === 'MainTabs'} />
-                {/* For deeper linking to specific tabs via drawer, we could pass params, but for simplicity we rely on the TabNavigator or we could use specific stack logic */}
+                <DrawerItem icon={Home} label="Dashboard" route="MainTabs" active={activeRoute === 'MainTabs'} />
 
                 <Text style={[styles.sectionLabel, { color: colors.text3 }]}>Academic</Text>
-                <DrawerItem icon={FileTextIcon} label="IA Mark View" route="Marks" active={activeRoute === 'Marks'} />
-                <DrawerItem icon={CalendarIcon} label="College Almanac" route="Almanac" active={activeRoute === 'Almanac'} />
+                <DrawerItem icon={Table2} label="IA Mark View" route="Marks" active={activeRoute === 'Marks'} />
+                <DrawerItem icon={CalendarRange} label="College Almanac" route="Almanac" active={activeRoute === 'Almanac'} />
 
                 <Text style={[styles.sectionLabel, { color: colors.text3 }]}>Finance</Text>
-                <DrawerItem icon={CreditCardIcon} label="Fee Details" route="Fee" active={activeRoute === 'Fee'} />
+                <DrawerItem icon={CreditCard} label="Fee Details" route="Fee" active={activeRoute === 'Fee'} />
 
                 <Text style={[styles.sectionLabel, { color: colors.text3 }]}>Updates</Text>
-                {/* Notification can be accessed via main tabs or drawer. We'll map it to MainTabs for this scaffold. */}
             </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: colors.border, paddingBottom: insets.bottom || 12 }]}>
                 <TouchableOpacity style={styles.logoutRow} activeOpacity={0.7}>
-                    <LogOutIcon color={colors.red} size={18} />
+                    <LogOut color={colors.red} size={18} />
                     <Text style={[styles.logoutText, { color: colors.red }]}>Logout</Text>
                 </TouchableOpacity>
             </View>
@@ -147,7 +135,7 @@ const styles = StyleSheet.create({
     nav: { flex: 1, padding: 12 },
     sectionLabel: {
         fontSize: 10,
-        fontWeight: '700',
+        fontWeight: 800,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
         paddingHorizontal: 10,
@@ -166,7 +154,7 @@ const styles = StyleSheet.create({
     itemText: { fontSize: 13.5, fontWeight: '500' },
     badge: {
         marginLeft: 'auto',
-        backgroundColor: '#f97316', // orange
+        backgroundColor: '#f97316',
         borderRadius: 10,
         paddingVertical: 1,
         paddingHorizontal: 7,
@@ -182,7 +170,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         borderRadius: radius.sm,
     },
-    logoutText: { fontSize: 13.5, fontWeight: '500' },
+    logoutText: { fontSize: 13.5, fontWeight: 900 },
 });
 
 export default DrawerContent;
