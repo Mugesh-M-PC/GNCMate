@@ -12,6 +12,7 @@ import QuickTile from '../components/QuickTile';
 import SubjectAttendanceItem from '../components/SubjectAttendanceItem';
 import { BookOpenIcon, ClockIcon, CreditCardIcon, FileTextIcon, CalendarIcon, BellIcon, TrendingDownIcon } from '../components/Icons';
 import { useThemeStore } from '../store/ThemeStore';
+import { BookText, ClipboardClock, Landmark, Megaphone, TriangleAlert } from 'lucide-react-native';
 
 const CircularProgress = ({ colors, percentage }) => {
     const size = 110;
@@ -86,17 +87,17 @@ const HomeScreen = ({ navigation }) => {
                     </View>
                     <Text style={styles.heroSub}>Semester 6 · 5 Subjects enrolled</Text>
                     <View style={styles.heroChip}>
-                        <TrendingDownIcon color="#fff" size={12} />
-                        <Text style={styles.heroChipText}>Below 80% threshold — Needs attention</Text>
+                        <TriangleAlert color="yellow" size={18} />
+                        <Text style={styles.heroChipText}>Below 80% threshold - Needs attention</Text>
                     </View>
                 </LinearGradient>
 
                 {/* Stats Row */}
                 <View style={styles.statsRow}>
-                    <StatTile type="blue" title="Subjects" value="5" tag="SEM 6" icon={BookOpenIcon} />
-                    <StatTile type="green" title="Total Fees" value="₹2.15L" tag="All Paid" icon={CreditCardIcon} />
-                    <StatTile type="amber" title="IA Exams" value="4" tag="Scheduled" icon={ClockIcon} />
-                    <StatTile type="purple" title="Updates" value="5" tag="New" icon={BellIcon} />
+                    <StatTile type="blue" title="Subjects" value="5" tag="SEM 6" icon={BookText} />
+                    <StatTile type="green" title="Total Fees" value="₹2.15L" tag="All Paid" icon={Landmark} />
+                    <StatTile type="amber" title="IA Exams" value="4" tag="Scheduled" icon={ClipboardClock} />
+                    <StatTile type="purple" title="Updates" value="5" tag="New" icon={Megaphone} />
                 </View>
 
                 {/* Quick Access */}
@@ -171,20 +172,21 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 5,
+        gap: 8,
         backgroundColor: 'rgba(255,255,255,0.18)',
         borderRadius: 20,
-        paddingVertical: 4,
-        paddingHorizontal: 10,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
         marginTop: 10,
     },
-    heroChipText: { color: '#fff', fontSize: 11, fontWeight: '600' },
+    heroChipText: { color: '#fff', fontSize: 10, fontWeight: '600' },
     statsRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 10,
+        // gap: 10,
         marginHorizontal: 16,
         marginTop: 16,
+        justifyContent: 'space-between',
     },
     groupLabelWrap: {
         flexDirection: 'row',

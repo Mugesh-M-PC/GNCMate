@@ -2,13 +2,10 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme, radius, spacing, fontWeight, iconSize } from '../theme';
-import { HomeIcon, BookOpenIcon, ClockIcon, BellIcon } from '../components/Icons';
-
 import HomeScreen from '../screens/HomeScreen';
 import AttendanceScreen from '../screens/AttendanceScreen';
 import ExamsScreen from '../screens/ExamsScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
-import Ionicons from '@react-native-vector-icons/ionicons';
 import { CalendarDays, ClipboardPenLine, House, Megaphone } from 'lucide-react-native';
 import { useThemeStore } from '../store/ThemeStore';
 
@@ -33,13 +30,6 @@ const tabs = [
         label: 'Exams',
         icon: ClipboardPenLine,
     },
-    // {
-    //     name: 'Alerts',
-    //     component: NotificationsScreen,
-    //     label: 'Alerts',
-    //     icon: Megaphone,
-    //     badge: 5,
-    // },
 ];
 
 const TabNavigator = () => {
@@ -86,20 +76,15 @@ const TabNavigator = () => {
 const TabItem = ({ focused, icon: Icon, label, colors, badge }) => {
     return (
         <View style={styles.tabItem}>
-            <View style={[styles.tabIcon, focused && { backgroundColor: colors.gncBlue }]}>
+            <View style={[styles.tabIcon]}>
                 <Icon
                     size={focused ? iconSize.medium : 20}
-                    color={focused ? colors.primary : colors.text3}
+                    color={focused ? colors.brand : colors.text3}
                 />
             </View>
-            <Text style={[styles.tabLabel, focused ? { color: colors.primary, fontWeight: fontWeight.extraBold } : { color: colors.text3, fontWeight: fontWeight.semiBold, }]}>
+            <Text style={[styles.tabLabel, focused ? { color: colors.brand, fontWeight: fontWeight.extraBold } : { color: colors.text3, fontWeight: fontWeight.semiBold, }]}>
                 {label}
             </Text>
-            {badge && (
-                <View style={[styles.badge, { backgroundColor: '#f97316', borderColor: colors.surface }]}>
-                    <Text style={styles.badgeText}>{badge}</Text>
-                </View>
-            )}
         </View>
     );
 };

@@ -37,7 +37,7 @@ const StatTile = ({ type, title, value, tag, icon: IconComponent }) => {
             <View style={[styles.decoCircle, { backgroundColor: accentColor }]} />
 
             <View style={[styles.iconWrap, { backgroundColor: softColor }]}>
-                <IconComponent color={accentColor} size={16} />
+                <IconComponent color={accentColor} size={20} />
             </View>
 
             <Text style={[styles.value, { color: colors.text }]}>{value}</Text>
@@ -52,12 +52,11 @@ const StatTile = ({ type, title, value, tag, icon: IconComponent }) => {
 
 const styles = StyleSheet.create({
     tile: {
-        flex: 1,
-        minWidth: '46%', // Approximate 2 column grid
+        width: '48%',
         borderWidth: 1,
         borderRadius: radius.md,
         padding: 16,
-        marginBottom: 10,
+        marginBottom: 18,
         overflow: 'hidden',
         position: 'relative',
         // shadow
