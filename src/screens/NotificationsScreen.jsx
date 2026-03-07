@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { radius } from '../theme';
@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import Card from '../components/Card';
 import { TrendingDownIcon, ClockIcon, CreditCardIcon, ArchiveIcon } from '../components/Icons';
 import { useThemeStore } from '../store/ThemeStore';
+import { useAuthStore } from '../store/AuthStore';
 
 const NotifItem = ({ title, sub, icon: Icon, type, unread = false, isLast = false }) => {
     const { colors } = useThemeStore();

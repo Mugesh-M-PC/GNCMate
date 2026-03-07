@@ -12,7 +12,9 @@ import QuickTile from '../components/QuickTile';
 import SubjectAttendanceItem from '../components/SubjectAttendanceItem';
 import { BookOpenIcon, ClockIcon, CreditCardIcon, FileTextIcon, CalendarIcon, BellIcon, TrendingDownIcon } from '../components/Icons';
 import { useThemeStore } from '../store/ThemeStore';
-import { BookText, ClipboardClock, Landmark, Megaphone, TriangleAlert } from 'lucide-react-native';
+import { BookText, ClipboardClock, Landmark, Megaphone, TriangleAlert, CalendarDays, CreditCard, Table2, CalendarRange } from 'lucide-react-native';
+import { useAuthStore } from '../store/AuthStore';
+import { capitalize } from '../utils/TextHelper';
 
 const CircularProgress = ({ colors, percentage }) => {
     const size = 110;
@@ -61,6 +63,8 @@ const CircularProgress = ({ colors, percentage }) => {
 const HomeScreen = ({ navigation }) => {
     const { colors } = useThemeStore();
     const insets = useSafeAreaInsets();
+    const { user } = useAuthStore();
+    const name = capitalize(user?.name) || 'Student';
 
     return (
         <View style={[styles.container, { backgroundColor: colors.bg }]}>
@@ -71,6 +75,11 @@ const HomeScreen = ({ navigation }) => {
                 contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
                 showsVerticalScrollIndicator={false}
             >
+                <View style={styles.welcomeWrap}>
+                    <Text style={[styles.welcomeText, { color: colors.text2 }]}>Welcome,</Text>
+                    <Text style={[styles.welcomeText, { color: colors.brand }]}>{name}</Text>
+                </View>
+
                 {/* Hero */}
                 <LinearGradient
                     colors={[colors.headerGradStart, colors.headerGradEnd]}
@@ -106,11 +115,11 @@ const HomeScreen = ({ navigation }) => {
                     <View style={[styles.groupLabelLine, { backgroundColor: colors.border }]} />
                 </View>
                 <View style={styles.quickGrid}>
-                    <QuickTile label="Attendance" icon={BookOpenIcon} type="brand" onPress={() => navigation.navigate('Attendance')} />
-                    <QuickTile label="IA Schedule" icon={ClockIcon} type="green" onPress={() => navigation.navigate('Exams')} />
-                    <QuickTile label="Fee Details" icon={CreditCardIcon} type="amber" onPress={() => navigation.navigate('Fee')} />
-                    <QuickTile label="IA Marks" icon={FileTextIcon} type="purple" onPress={() => navigation.navigate('Marks')} />
-                    <QuickTile label="Almanac" icon={CalendarIcon} type="red" onPress={() => navigation.navigate('Almanac')} />
+                    <QuickTile label="Attendance" icon={CalendarDays} type="brand" onPress={() => navigation.navigate('Attendance')} />
+                    <QuickTile label="IA Schedule" icon={ClipboardClock} type="green" onPress={() => navigation.navigate('Exams')} />
+                    <QuickTile label="Fee Details" icon={CreditCard} type="amber" onPress={() => navigation.navigate('Fee')} />
+                    <QuickTile label="IA Marks" icon={Table2} type="purple" onPress={() => navigation.navigate('Marks')} />
+                    <QuickTile label="Almanac" icon={CalendarRange} type="red" onPress={() => navigation.navigate('Almanac')} />
                     <QuickTile label="Alerts" icon={BellIcon} type="brand" onPress={() => navigation.navigate('Alerts')} />
                 </View>
 
@@ -136,6 +145,17 @@ const HomeScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
+    welcomeWrap: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingTop: 16,
+        gap: 5,
+    },
+    welcomeText: {
+        fontSize: 18,
+        fontWeight: '700',
+    },
     scrollArea: { flex: 1 },
     heroCard: {
         marginHorizontal: 16,

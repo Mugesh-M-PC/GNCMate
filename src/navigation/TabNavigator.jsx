@@ -5,8 +5,7 @@ import { useTheme, radius, spacing, fontWeight, iconSize } from '../theme';
 import HomeScreen from '../screens/HomeScreen';
 import AttendanceScreen from '../screens/AttendanceScreen';
 import ExamsScreen from '../screens/ExamsScreen';
-import NotificationsScreen from '../screens/NotificationsScreen';
-import { CalendarDays, ClipboardPenLine, House, Megaphone } from 'lucide-react-native';
+import { CalendarDays, ClipboardPenLine, House } from 'lucide-react-native';
 import { useThemeStore } from '../store/ThemeStore';
 
 const Tab = createBottomTabNavigator();

@@ -5,10 +5,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { radius } from '../theme';
 import { useThemeStore } from '../store/ThemeStore';
 import { CalendarRange, CreditCard, Home, LogOut, Table2 } from 'lucide-react-native';
+import { useAuthStore } from '../store/AuthStore';
+import { capitalize, getInitials } from '../utils/TextHelper';
 
 const DrawerContent = ({ navigation, state }) => {
     const { colors } = useThemeStore();
+    const { user, logout } = useAuthStore();
     const insets = useSafeAreaInsets();
+    const name = capitalize(user?.name) || 'Student';
+    const initials = getInitials(user?.name) || 'S';
 
     const getActiveRouteName = () => {
         return state.routeNames[state.index];
@@ -18,6 +23,10 @@ const DrawerContent = ({ navigation, state }) => {
 
     const handleNav = (route, params) => {
         navigation.navigate(route, params);
+    };
+
+    const handleLogout = async () => {
+        await logout();
     };
 
     const DrawerItem = ({ icon: Icon, label, route, badge, active }) => (
@@ -53,9 +62,9 @@ const DrawerContent = ({ navigation, state }) => {
 
                 <View style={styles.profile}>
                     <View style={styles.avatar}>
-                        <Text style={styles.avatarText}>SM</Text>
+                        <Text style={styles.avatarText}>{initials}</Text>
                     </View>
-                    <Text style={styles.name}>SUMI M V</Text>
+                    <Text style={styles.name}>{name}</Text>
                     <Text style={styles.roll}>Roll No: 2313141044056</Text>
                     <Text style={styles.college}>Guru Nanak College (Autonomous), Chennai</Text>
                 </View>
@@ -76,7 +85,7 @@ const DrawerContent = ({ navigation, state }) => {
             </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: colors.border, paddingBottom: insets.bottom || 12 }]}>
-                <TouchableOpacity style={styles.logoutRow} activeOpacity={0.7}>
+                <TouchableOpacity style={styles.logoutRow} activeOpacity={0.7} onPress={handleLogout}>
                     <LogOut color={colors.red} size={18} />
                     <Text style={[styles.logoutText, { color: colors.red }]}>Logout</Text>
                 </TouchableOpacity>

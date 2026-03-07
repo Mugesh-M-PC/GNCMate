@@ -1,38 +1,100 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { radius } from '../theme';
+import { radius, spacing, fontSize, fontWeight } from '../theme';
+import { Table, Row, Rows } from 'react-native-table-component';
+import dayjs from 'dayjs';
 
 import Header from '../components/Header';
 import Card from '../components/Card';
 import SubjectAttendanceItem from '../components/SubjectAttendanceItem';
 import { useThemeStore } from '../store/ThemeStore';
-
-const dayData = {
-    jan: [
-        { date: '02-01-2026', p: ['A', 'A', 'A', 'A', 'A'] },
-        { date: '03-01-2026', p: ['P', 'P', 'P', 'P', 'P'] },
-        { date: '05-01-2026', p: ['P', 'P', 'P', 'P', 'P'] },
-        { date: '06-01-2026', p: ['P', 'P', 'P', 'P', 'P'] },
-        { date: '07-01-2026', p: ['P', 'P', 'A', 'A', 'A'] },
-        { date: '08-01-2026', p: ['P', 'P', 'P', 'P', 'P'] },
-        { date: '09-01-2026', p: ['P', 'P', 'P', 'P', 'P'] },
-    ],
-    dec: [
-        { date: '01-12-2025', p: ['P', 'P', 'P', 'P', 'P'] },
-        { date: '02-12-2025', p: ['P', 'P', 'A', 'A', 'P'] },
-    ]
-};
+import { Calendar, ChevronDown, Check } from 'lucide-react-native';
 
 const AttendanceScreen = ({ navigation }) => {
     const { colors } = useThemeStore();
     const insets = useSafeAreaInsets();
-    const [selectedMonth, setSelectedMonth] = useState('jan');
+    const [selectedDate, setSelectedDate] = useState(dayjs());
+    const [isPickerVisible, setIsPickerVisible] = useState(false);
 
-    const getAttBadgeColor = (val) => {
-        if (val === 'P') return { bg: colors.greenSoft, text: colors.green };
-        return { bg: colors.redSoft, text: colors.red };
+    // Generate months from June 2023 to current month
+    const availableMonths = useMemo(() => {
+        const start = dayjs('2023-06-01');
+        const end = dayjs();
+        const months = [];
+        let current = end;
+
+        while (current.isAfter(start) || current.isSame(start, 'month')) {
+            months.push(current);
+            current = current.subtract(1, 'month');
+        }
+        return months;
+    }, []);
+
+    // Simulated data generator for the table
+    const generateTableData = (date) => {
+        const daysInMonth = date.daysInMonth();
+        const data = [];
+        const monthStr = date.format('MMM').toUpperCase();
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            const currentDay = date.date(i);
+            const isSunday = currentDay.day() === 0;
+            const day = i < 10 ? `0${i}` : i;
+
+            if (isSunday) {
+                data.push([`${day} ${monthStr}`, '-', '-', '-', '-', '-']);
+            } else {
+                data.push([
+                    `${day} ${monthStr}`,
+                    Math.random() > 0.1 ? 'P' : 'A',
+                    Math.random() > 0.1 ? 'P' : 'A',
+                    Math.random() > 0.1 ? 'P' : 'A',
+                    Math.random() > 0.1 ? 'P' : 'A',
+                    Math.random() > 0.1 ? 'P' : 'A',
+                ]);
+            }
+        }
+        return data;
     };
+
+    const tableHead = ['DATE', 'P1', 'P2', 'P3', 'P4', 'P5'];
+    const tableData = useMemo(() => generateTableData(selectedDate), [selectedDate]);
+
+    const renderAttendanceCell = (val) => {
+        if (val.length > 2) return <Text style={[styles.tdDate, { color: colors.text }]}>{val}</Text>;
+        
+        const isPresent = val === 'P';
+        const isAbsent = val === 'A';
+        const isNeutral = val === '-';
+
+        let bgColor = colors.surface2;
+        let textColor = colors.text3;
+
+        if (isPresent) {
+            bgColor = colors.greenSoft;
+            textColor = colors.green;
+        } else if (isAbsent) {
+            bgColor = colors.redSoft;
+            textColor = colors.red;
+        }
+
+        return (
+            <View style={styles.tdCenter}>
+                <View style={[
+                    styles.attBadge, 
+                    { backgroundColor: bgColor }
+                ]}>
+                    <Text style={[
+                        styles.attBadgeText, 
+                        { color: textColor }
+                    ]}>{val}</Text>
+                </View>
+            </View>
+        );
+    };
+
+    const formattedTableData = tableData.map(row => row.map(cell => renderAttendanceCell(cell)));
 
     return (
         <View style={[styles.container, { backgroundColor: colors.bg }]}>
@@ -79,61 +141,92 @@ const AttendanceScreen = ({ navigation }) => {
                     </Card>
                 </View>
 
-                {/* Day Wise */}
+                {/* Monthly selector */}
                 <View style={styles.groupLabelWrap}>
                     <Text style={[styles.groupLabel, { color: colors.text3 }]}>DAY WISE ATTENDANCE</Text>
                     <View style={[styles.groupLabelLine, { backgroundColor: colors.border }]} />
                 </View>
-                <View style={styles.section}>
-                    <Card>
-                        <View style={[styles.selectWrapper, { borderBottomColor: colors.border }]}>
-                            {/* Simple custom select using a row of buttons for demonstration since standard React NativePicker requires adding a package. */}
-                            <View style={styles.monthTabs}>
-                                <TouchableOpacity
-                                    style={[styles.monthTab, selectedMonth === 'jan' && { backgroundColor: colors.surface2, borderColor: colors.border }]}
-                                    onPress={() => setSelectedMonth('jan')}
-                                >
-                                    <Text style={[styles.monthTabText, { color: selectedMonth === 'jan' ? colors.text : colors.text2 }]}>January 2026</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.monthTab, selectedMonth === 'dec' && { backgroundColor: colors.surface2, borderColor: colors.border }]}
-                                    onPress={() => setSelectedMonth('dec')}
-                                >
-                                    <Text style={[styles.monthTabText, { color: selectedMonth === 'dec' ? colors.text : colors.text2 }]}>December 2025</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
 
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                            <View style={styles.table}>
-                                {/* Header Row */}
-                                <View style={[styles.tableHeader, { backgroundColor: colors.surface2, borderBottomColor: colors.border }]}>
-                                    <Text style={[styles.th, styles.thFirst, { color: colors.text3 }]}>DATE</Text>
-                                    {['P1', 'P2', 'P3', 'P4', 'P5'].map(p => (
-                                        <Text key={p} style={[styles.th, { color: colors.text3 }]}>{p}</Text>
-                                    ))}
-                                </View>
-                                {/* Body Rows */}
-                                {(dayData[selectedMonth] || []).map((row, i) => (
-                                    <View key={i} style={[styles.tableRow, { borderBottomColor: colors.border2 }]}>
-                                        <Text style={[styles.tdDate, { color: colors.text }]}>{row.date}</Text>
-                                        {row.p.map((val, idx) => {
-                                            const badgeColors = getAttBadgeColor(val);
-                                            return (
-                                                <View key={idx} style={styles.tdCenter}>
-                                                    <View style={[styles.attBadge, { backgroundColor: badgeColors.bg }]}>
-                                                        <Text style={[styles.attBadgeText, { color: badgeColors.text }]}>{val}</Text>
-                                                    </View>
-                                                </View>
-                                            )
-                                        })}
-                                    </View>
-                                ))}
+                <View style={styles.section}>
+                    <Card style={{ padding: 0 }}>
+                        <TouchableOpacity 
+                            style={[styles.pickerTrigger, { borderBottomColor: colors.border2 }]}
+                            onPress={() => setIsPickerVisible(true)}
+                        >
+                            <View style={styles.pickerLabelRow}>
+                                <Calendar size={18} color={colors.brand} style={{ marginRight: 10 }} />
+                                <Text style={[styles.pickerValue, { color: colors.text }]}>
+                                    {selectedDate.format('MMMM YYYY')}
+                                </Text>
                             </View>
-                        </ScrollView>
+                            <ChevronDown size={20} color={colors.text3} />
+                        </TouchableOpacity>
+
+                        <View style={styles.tablePadding}>
+                            <Table borderStyle={{ borderWidth: 0 }}>
+                                <Row 
+                                    data={tableHead} 
+                                    style={[styles.head, { backgroundColor: colors.surface2 }]} 
+                                    textStyle={[styles.headText, { color: colors.text3 }]} 
+                                    flexArr={[2, 1, 1, 1, 1, 1]}
+                                />
+                                <Rows 
+                                    data={formattedTableData} 
+                                    style={[styles.row, { borderBottomColor: colors.border2 }]}
+                                    flexArr={[2, 1, 1, 1, 1, 1]}
+                                />
+                            </Table>
+                        </View>
                     </Card>
                 </View>
             </ScrollView>
+
+            {/* Month Picker Modal */}
+            <Modal
+                visible={isPickerVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setIsPickerVisible(false)}
+            >
+                <TouchableOpacity 
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setIsPickerVisible(false)}
+                >
+                    <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+                        <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+                            <Text style={[styles.modalTitle, { color: colors.text }]}>Select Month</Text>
+                        </View>
+                        <FlatList
+                            data={availableMonths}
+                            keyExtractor={(item) => item.format('YYYY-MM')}
+                            renderItem={({ item }) => {
+                                const isSelected = item.isSame(selectedDate, 'month');
+                                return (
+                                    <TouchableOpacity 
+                                        style={[
+                                            styles.monthItem,
+                                            isSelected && { backgroundColor: colors.brand + '10' }
+                                        ]}
+                                        onPress={() => {
+                                            setSelectedDate(item);
+                                            setIsPickerVisible(false);
+                                        }}
+                                    >
+                                        <Text style={[
+                                            styles.monthItemText, 
+                                            { color: isSelected ? colors.brand : colors.text }
+                                        ]}>
+                                            {item.format('MMMM YYYY')}
+                                        </Text>
+                                        {isSelected && <Check size={18} color={colors.brand} />}
+                                    </TouchableOpacity>
+                                );
+                            }}
+                        />
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </View>
     );
 };
@@ -161,72 +254,89 @@ const styles = StyleSheet.create({
     section: {
         paddingHorizontal: 16,
     },
-    selectWrapper: {
-        padding: 14,
-        borderBottomWidth: 1,
-    },
-    monthTabs: {
+    pickerTrigger: {
         flexDirection: 'row',
-        gap: 8,
-    },
-    monthTab: {
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: radius.sm,
-        borderWidth: 1,
-        borderColor: 'transparent',
-    },
-    monthTabText: {
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    table: {
-        minWidth: 320,
-        paddingBottom: 10,
-    },
-    tableHeader: {
-        flexDirection: 'row',
-        borderBottomWidth: 1,
-        paddingVertical: 10,
-    },
-    th: {
-        flex: 1,
-        textAlign: 'center',
-        fontSize: 11,
-        fontWeight: '700',
-        letterSpacing: 0.8,
-    },
-    thFirst: {
-        flex: 2,
-        textAlign: 'left',
-        paddingLeft: 16,
-    },
-    tableRow: {
-        flexDirection: 'row',
-        borderBottomWidth: 1,
-        paddingVertical: 11,
         alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 16,
+        borderBottomWidth: 1,
+    },
+    pickerLabelRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    pickerValue: {
+        fontSize: 15,
+        fontWeight: fontWeight.semiBold,
+    },
+    tablePadding: {
+        padding: 10,
+    },
+    head: { 
+        height: 44, 
+        borderTopLeftRadius: radius.sm,
+        borderTopRightRadius: radius.sm,
+    },
+    headText: { 
+        textAlign: 'center', 
+        fontSize: 10, 
+        fontWeight: '800', 
+        letterSpacing: 0.5 
+    },
+    row: { 
+        height: 52, 
+        borderBottomWidth: 1,
     },
     tdDate: {
-        flex: 2,
-        paddingLeft: 16,
-        fontSize: 12.5,
-        fontWeight: '600',
+        paddingLeft: 12,
+        fontSize: 12,
+        fontWeight: '700',
     },
     tdCenter: {
-        flex: 1,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     attBadge: {
-        width: 24,
-        height: 24,
-        borderRadius: 6,
+        width: 26,
+        height: 26,
+        borderRadius: 7,
         alignItems: 'center',
         justifyContent: 'center',
     },
     attBadgeText: {
         fontSize: 11,
-        fontWeight: '700',
+        fontWeight: '800',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        maxHeight: '70%',
+        paddingBottom: 40,
+    },
+    modalHeader: {
+        padding: 20,
+        borderBottomWidth: 1,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 17,
+        fontWeight: fontWeight.bold,
+    },
+    monthItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 16,
+        paddingHorizontal: 24,
+    },
+    monthItemText: {
+        fontSize: 16,
+        fontWeight: fontWeight.medium,
     },
 });
 

@@ -1,52 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { radius } from '../theme';
+import { radius, spacing, fontSize, fontWeight } from '../theme';
+import { Calendar } from 'react-native-calendars';
+import dayjs from 'dayjs';
 
 import Header from '../components/Header';
 import Card from '../components/Card';
 import { useThemeStore } from '../store/ThemeStore';
+import { Info, CalendarDays } from 'lucide-react-native';
 
 const AlmanacScreen = ({ navigation }) => {
-    const { colors } = useThemeStore();
+    const { colors, isDark } = useThemeStore();
     const insets = useSafeAreaInsets();
-    const [selectedMonth, setSelectedMonth] = useState('jul23');
+    
+    const today = dayjs().format('YYYY-MM-DD');
+    const [selectedDate, setSelectedDate] = useState(today);
 
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    // Simulated Almanac Data for March 2026
+    const almanacEvents = useMemo(() => {
+        const events = {};
+        const startOfMonth = dayjs().startOf('month');
+        const daysInMonth = startOfMonth.daysInMonth();
+        
+        let dayOrderCount = 0;
+        
+        for (let i = 1; i <= daysInMonth; i++) {
+            const current = startOfMonth.date(i);
+            const dateStr = current.format('YYYY-MM-DD');
+            const isSunday = current.day() === 0;
 
-    // Data mirroring the HTML algorithm
-    const almanacData = [
-        { d: 1, w: 'Sat', o: null }, { d: 2, w: 'Sun', o: null }, { d: 3, w: 'Mon', o: 4 }, { d: 4, w: 'Tue', o: 5 },
-        { d: 5, w: 'Wed', o: 6 }, { d: 6, w: 'Thu', o: 1 }, { d: 7, w: 'Fri', o: 2 },
-        { d: 8, w: 'Sat', o: null }, { d: 9, w: 'Sun', o: null }, { d: 10, w: 'Mon', o: 3 }, { d: 11, w: 'Tue', o: 4 },
-        { d: 12, w: 'Wed', o: 5 }, { d: 13, w: 'Thu', o: 6 }, { d: 14, w: 'Fri', o: 1 },
-        { d: 15, w: 'Sat', o: null }, { d: 16, w: 'Sun', o: null }, { d: 17, w: 'Mon', o: 2 }, { d: 18, w: 'Tue', o: 3 },
-        { d: 19, w: 'Wed', o: 4 }, { d: 20, w: 'Thu', o: 5 }, { d: 21, w: 'Fri', o: 6 },
-        { d: 22, w: 'Sat', o: null }, { d: 23, w: 'Sun', o: null }, { d: 24, w: 'Mon', o: 1 }, { d: 25, w: 'Tue', o: 2 },
-        { d: 26, w: 'Wed', o: 3 }, { d: 27, w: 'Thu', o: 4 }, { d: 28, w: 'Fri', o: 5 },
-        { d: 29, w: 'Sat', o: null }, { d: 30, w: 'Sun', o: null }, { d: 31, w: 'Mon', o: 6 },
-    ];
-
-    // Prepend empty cells since July 2023 started on a Saturday (index 6, implying 6 empty cells)
-    const renderCell = (cell, index) => {
-        if (!cell) {
-            return <View key={`empty-${index}`} style={styles.calCell} />;
+            if (isSunday) {
+                events[dateStr] = { type: 'holiday', title: 'Sunday', order: null };
+            } else {
+                dayOrderCount = (dayOrderCount % 6) + 1;
+                events[dateStr] = { 
+                    type: 'working', 
+                    title: 'Regular Class Day', 
+                    order: dayOrderCount 
+                };
+            }
         }
+        
+        // Add some specific events/holidays
+        const specialDates = {
+            '2026-03-15': { type: 'holiday', title: 'College Foundation Day', order: null },
+            '2026-03-25': { type: 'event', title: 'Cultural Fest - GNC Fusion', order: 3 },
+            '2026-03-28': { type: 'holiday', title: 'Special Holiday', order: null },
+        };
 
-        const isWeekend = cell.w === 'Sat' || cell.w === 'Sun';
+        return { ...events, ...specialDates };
+    }, []);
 
-        return (
-            <View key={cell.d} style={[styles.calCell, isWeekend && styles.calCellWeekend]}>
-                <Text style={[styles.cellDate, { color: isWeekend ? colors.text3 : colors.text }]}>{cell.d}</Text>
-                {!isWeekend && cell.o && (
-                    <Text style={[styles.cellOrder, { color: colors.text3 }]}>D{cell.o}</Text>
-                )}
-            </View>
-        );
-    };
+    const selectedInfo = almanacEvents[selectedDate] || { title: 'No data available', order: null };
 
-    const gridCells = [null, null, null, null, null, null, ...almanacData];
-
+    const markedDates = useMemo(() => {
+        const marked = {};
+        Object.keys(almanacEvents).forEach(date => {
+            const event = almanacEvents[date];
+            if (date === selectedDate) {
+                marked[date] = { 
+                    selected: true, 
+                    selectedColor: colors.brand,
+                    selectedTextColor: '#fff'
+                };
+            } else if (event.type === 'holiday') {
+                marked[date] = { 
+                    dotColor: colors.red, 
+                    marked: true 
+                };
+            } else if (event.type === 'event') {
+                marked[date] = { 
+                    dotColor: colors.amber, 
+                    marked: true 
+                };
+            }
+        });
+        return marked;
+    }, [selectedDate, almanacEvents, colors]);
     return (
         <View style={[styles.container, { backgroundColor: colors.bg }]}>
             <Header title="College Almanac" onMenuPress={() => navigation.openDrawer()} />
@@ -62,47 +93,79 @@ const AlmanacScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.section}>
-                    <Card style={{ padding: 14 }}>
-                        <View style={styles.monthTabs}>
-                            <TouchableOpacity
-                                style={[styles.monthTab, selectedMonth === 'jul23' && { backgroundColor: colors.surface2, borderColor: colors.border }]}
-                                onPress={() => setSelectedMonth('jul23')}
-                            >
-                                <Text style={[styles.monthTabText, { color: selectedMonth === 'jul23' ? colors.text : colors.text2 }]}>July 2023</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.monthTab, selectedMonth === 'aug23' && { backgroundColor: colors.surface2, borderColor: colors.border }]}
-                                onPress={() => setSelectedMonth('aug23')}
-                            >
-                                <Text style={[styles.monthTabText, { color: selectedMonth === 'aug23' ? colors.text : colors.text2 }]}>August 2023</Text>
-                            </TouchableOpacity>
-                        </View>
+                    <Card style={{ padding: 0, overflow: 'hidden' }}>
+                        <Calendar
+                            current={today}
+                            onDayPress={day => setSelectedDate(day.dateString)}
+                            markedDates={markedDates}
+                            hideArrows={true}
+                            disableMonthChange={true}
+                            enableSwipeMonths={false}
+                            theme={{
+                                backgroundColor: 'transparent',
+                                calendarBackground: 'transparent',
+                                textSectionTitleColor: colors.text2,
+                                selectedDayBackgroundColor: colors.brand,
+                                selectedDayTextColor: '#ffffff',
+                                todayTextColor: colors.brand,
+                                dayTextColor: colors.text,
+                                textDisabledColor: colors.text3 + '40',
+                                dotColor: colors.brand,
+                                selectedDotColor: '#ffffff',
+                                monthTextColor: colors.text,
+                                indicatorColor: colors.brand,
+                                textDayFontWeight: '600',
+                                textMonthFontWeight: '800',
+                                textDayHeaderFontWeight: '700',
+                                textDayFontSize: 14,
+                                textMonthFontSize: 16,
+                                textDayHeaderFontSize: 12,
+                            }}
+                        />
                     </Card>
                 </View>
 
+                {/* Status Section */}
                 <View style={styles.section}>
-                    <Card>
-                        <View style={styles.calHeader}>
-                            {days.map(d => (
-                                <Text key={d} style={[styles.calHeaderDay, { color: colors.text3 }]}>{d}</Text>
-                            ))}
+                    <Card style={styles.detailsCard}>
+                        <View style={styles.detailsHeader}>
+                            <CalendarDays size={18} color={colors.brand} />
+                            <Text style={[styles.detailsTitle, { color: colors.text }]}>
+                                {dayjs(selectedDate).format('DD MMMM YYYY')}
+                            </Text>
                         </View>
-                        <View style={styles.calGrid}>
-                            {gridCells.map((cell, index) => renderCell(cell, index))}
+                        
+                        <View style={[styles.infoRow, { backgroundColor: colors.bg2 }]}>
+                            <View style={styles.infoCol}>
+                                <Text style={[styles.infoLabel, { color: colors.text3 }]}>Day Order</Text>
+                                <Text style={[styles.infoValue, { color: selectedInfo.order ? colors.brand : colors.text3 }]}>
+                                    {selectedInfo.order ? `D${selectedInfo.order}` : '-'}
+                                </Text>
+                            </View>
+                            <View style={styles.divider} />
+                            <View style={[styles.infoCol, { flex: 2 }]}>
+                                <Text style={[styles.infoLabel, { color: colors.text3 }]}>Description</Text>
+                                <Text style={[styles.infoValue, { color: colors.text }]}>
+                                    {selectedInfo.title}
+                                </Text>
+                            </View>
                         </View>
                     </Card>
                 </View>
 
-                {/* Legend */}
                 <View style={styles.section}>
                     <Card style={styles.legendCard}>
                         <View style={styles.legendItem}>
                             <View style={[styles.legendBox, { backgroundColor: colors.brand }]} />
-                            <Text style={[styles.legendText, { color: colors.text2 }]}>Today / Active</Text>
+                            <Text style={[styles.legendText, { color: colors.text2 }]}>Selected</Text>
                         </View>
                         <View style={styles.legendItem}>
-                            <View style={[styles.legendBox, { backgroundColor: colors.bg2 }]} />
-                            <Text style={[styles.legendText, { color: colors.text2 }]}>Weekend</Text>
+                            <View style={[styles.legendBox, { backgroundColor: colors.red }]} />
+                            <Text style={[styles.legendText, { color: colors.text2 }]}>Holiday</Text>
+                        </View>
+                        <View style={styles.legendItem}>
+                            <View style={[styles.legendBox, { backgroundColor: colors.amber }]} />
+                            <Text style={[styles.legendText, { color: colors.text2 }]}>Event</Text>
                         </View>
                     </Card>
                 </View>
@@ -121,7 +184,7 @@ const styles = StyleSheet.create({
         gap: 8,
         paddingHorizontal: 16,
         paddingTop: 16,
-        paddingBottom: 10,
+        paddingBottom: 12,
     },
     groupLabel: {
         fontSize: 11,
@@ -134,64 +197,52 @@ const styles = StyleSheet.create({
     },
     section: {
         paddingHorizontal: 16,
+        marginBottom: 16,
     },
-    monthTabs: {
+    detailsCard: {
+        padding: 20,
+    },
+    detailsHeader: {
         flexDirection: 'row',
-        gap: 8,
-    },
-    monthTab: {
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: radius.sm,
-        borderWidth: 1,
-        borderColor: 'transparent',
-    },
-    monthTabText: {
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    calHeader: {
-        flexDirection: 'row',
-        paddingHorizontal: 8,
-        paddingTop: 10,
-        paddingBottom: 4,
-    },
-    calHeaderDay: {
-        flex: 1,
-        textAlign: 'center',
-        fontSize: 11,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-    },
-    calGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        paddingHorizontal: 8,
-        paddingBottom: 12,
-    },
-    calCell: {
-        width: '14.28%', // 100/7
-        aspectRatio: 1,
         alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 8,
+        gap: 10,
+        marginBottom: 16,
     },
-    calCellWeekend: {
-        // We handle text color via props, but can add styles here
+    detailsTitle: {
+        fontSize: 16,
+        fontWeight: fontWeight.bold,
     },
-    cellDate: {
-        fontSize: 12.5,
-        fontWeight: '500',
+    infoRow: {
+        flexDirection: 'row',
+        borderRadius: radius.md,
+        padding: 16,
+        alignItems: 'center',
     },
-    cellOrder: {
-        fontSize: 8,
-        marginTop: 1,
+    infoCol: {
+        flex: 1,
+    },
+    divider: {
+        width: 1,
+        height: 30,
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        marginHorizontal: 16,
+    },
+    infoLabel: {
+        fontSize: 10,
+        fontWeight: fontWeight.bold,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+        marginBottom: 4,
+    },
+    infoValue: {
+        fontSize: 14,
+        fontWeight: fontWeight.bold,
     },
     legendCard: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 16,
-        padding: 12,
+        padding: 16,
     },
     legendItem: {
         flexDirection: 'row',
@@ -199,12 +250,13 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     legendBox: {
-        width: 14,
-        height: 14,
-        borderRadius: 4,
+        width: 12,
+        height: 12,
+        borderRadius: 3,
     },
     legendText: {
         fontSize: 11,
+        fontWeight: fontWeight.medium,
     },
 });
 
