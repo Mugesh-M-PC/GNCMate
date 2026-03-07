@@ -1,0 +1,63 @@
+export const lightColors = {
+    brand: '#5b7fff',
+    brand2: '#7c5cfc',
+    brandSoft: 'rgba(91,127,255,0.12)',
+    green: '#22c55e',
+    greenSoft: 'rgba(34,197,94,0.12)',
+    amber: '#f59e0b',
+    amberSoft: 'rgba(245,158,11,0.1)',
+    red: '#ef4444',
+    redSoft: 'rgba(239,68,68,0.1)',
+    orange: '#f97316',
+
+    bg: '#f4f6fb',
+    bg2: '#eceef5',
+    surface: '#ffffff',
+    surface2: '#f7f8fc',
+    border: 'rgba(0,0,0,0.07)',
+    border2: 'rgba(0,0,0,0.04)',
+    text: '#0f1729',
+    text2: '#6b7490',
+    text3: '#adb5cc',
+    tabBg: 'rgba(255,255,255,0.92)',
+    overlay: 'rgba(15,23,41,0.45)',
+    drawerBg: '#ffffff',
+
+    headerGradStart: '#5b7fff',
+    headerGradEnd: '#7c5cfc',
+
+    primary: '#1C4D8D',
+    white: '#ffffff',
+};
+
+export const darkColors = {
+    brand: '#5b7fff',
+    brand2: '#7c5cfc',
+    brandSoft: 'rgba(91,127,255,0.12)',
+    green: '#22c55e',
+    greenSoft: 'rgba(34,197,94,0.12)',
+    amber: '#f59e0b',
+    amberSoft: 'rgba(245,158,11,0.1)',
+    red: '#ef4444',
+    redSoft: 'rgba(239,68,68,0.1)',
+    orange: '#f97316',
+
+    bg: '#0c0f1a',
+    bg2: '#111422',
+    surface: '#161b2e',
+    surface2: '#1c2238',
+    border: 'rgba(255,255,255,0.07)',
+    border2: 'rgba(255,255,255,0.03)',
+    text: '#eef0f8',
+    text2: '#7d87a8',
+    text3: '#404762',
+    tabBg: 'rgba(22,27,46,0.95)',
+    overlay: 'rgba(0,0,0,0.65)',
+    drawerBg: '#161b2e',
+
+    headerGradStart: '#3a5bd4',
+    headerGradEnd: '#5c3fd9',
+
+    primary: '#1C4D8D',
+    white: '#ffffff',
+};
