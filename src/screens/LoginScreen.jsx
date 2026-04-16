@@ -61,7 +61,7 @@ const LoginScreen = () => {
                 {/* Header Section */}
                 <View style={styles.header}>
                     <Image source={require('../assets/images/logo.png')} style={styles.logo} />
-                    <Text style={[styles.welcomeText, { color: colors.text }]}>Welcome to GNCMate</Text>
+                    <Text style={[styles.welcomeText, { color: colors.text }]}>Welcome to Student Mate</Text>
                     <Text style={[styles.subText, { color: colors.text2 }]}>Sign in to continue</Text>
                 </View>
 
